@@ -1,4 +1,4 @@
-#include <stdio.h>}
+#include <stdio.h>
 int main(){
 int a,b,c,d,e;
 printf("Ingrese el valor de A \n");
