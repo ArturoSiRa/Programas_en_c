@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "TemperaturaFlotante[1].C": "cpp",
+        "stdio.h": "c",
+        "Pruebas_prog1.C": "cpp",
+        "array": "c",
+        "string_view": "c",
+        "format": "c",
+        "initializer_list": "c",
+        "span": "c",
+        "random": "c"
+    }
+}
