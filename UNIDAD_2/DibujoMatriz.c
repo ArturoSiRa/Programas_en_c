@@ -1,7 +1,17 @@
 #include <stdio.h>
 
-void llenarMatriz(char *nombre, int filas, int columnas, int matriz[filas][columnas]) {
- printf("Nombre de la matriz: %s\n", nombre);
+ 
+void gotoxy(int x, int y) {
+    printf("\033[%d;%dH", y, x);
+}
+ 
+void setColor(const char* color) {
+    printf("%s", color);
+}
+void limpiarPantalla(){
+    printf("\033[2J");}
+
+void llenarMatriz(int filas, int columnas, int matriz[filas][columnas]) {
  for (int i = 0; i < filas; i++) {
  for (int j = 0; j < columnas; j++) {
  printf("Ingrese el valor para la posición [%d][%d]: ", i+1, j+1);
@@ -10,8 +20,7 @@ void llenarMatriz(char *nombre, int filas, int columnas, int matriz[filas][colum
 }
 
 
-void imprimirMatriz(char *nombre, int filas, int columnas, int matriz[filas][columnas]) {
- printf("Nombre de la matriz: %s\n", nombre);
+void imprimirMatriz(int filas, int columnas, int matriz[filas][columnas]) {
  printf("Matriz ingresada:\n");
  for (int i = 0; i < filas; i++) {
  for (int j = 0; j < columnas; j++) {
@@ -91,6 +100,8 @@ float cdet(int filas, int columnas, int matriz[filas][columnas]) {
 }
 
 int main() {
+
+    printf("\033[2J");
  int filas, columnas;
  printf("Para calcular el determinante la matriz debe ser 3x3.\n");
  printf("Ingrese el número de filas: ");
@@ -103,27 +114,28 @@ int main() {
  int matriz_r[filas][columnas];
  
 
- llenarMatriz("Matriz A", filas, columnas, matriz_a);
- llenarMatriz("Matriz B", filas, columnas, matriz_b);
- imprimirMatriz("Matriz A", filas, columnas, matriz_a);
- imprimirMatriz("Matriz B", filas, columnas, matriz_b);
+ llenarMatriz(filas, columnas, matriz_a);
+ llenarMatriz(filas, columnas, matriz_b);
+ printf("\n\n\n\n");
+ imprimirMatriz(filas, columnas, matriz_a);
+ imprimirMatriz(filas, columnas, matriz_b);
  sumarMatriz(filas, columnas, matriz_a, matriz_b, matriz_r);
- imprimirMatriz("SUMA A+B", filas, columnas, matriz_r);
+ imprimirMatriz(filas, columnas, matriz_r);
  restaMatriz(filas, columnas, matriz_a, matriz_b, matriz_r);
- imprimirMatriz("SUMA A-B", filas, columnas, matriz_r);
+ imprimirMatriz(filas, columnas, matriz_r);
 
  
  int esc1;
  printf("\nIngresa el numero para multiplicar para matriz A: ");
  scanf("%d", &esc1);
  escMatriz1(filas, columnas, esc1, matriz_a, matriz_r);
- imprimirMatriz("Escalar de A", filas, columnas, matriz_r);
+ imprimirMatriz(filas, columnas, matriz_r);
 
  int esc2;
  printf("\nIngresa el numero para multiplicar para matriz B: ");
  scanf("%d", &esc2);
  escMatriz2(filas, columnas, esc2, matriz_b, matriz_r);
- imprimirMatriz("Escalar de B", filas, columnas, matriz_r);
+ imprimirMatriz(filas, columnas, matriz_r);
 
  
  
