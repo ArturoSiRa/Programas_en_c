@@ -54,7 +54,6 @@ void limpiarPantalla() {
     system("cls");
 }
 
-// FUNCION DE LECTURA SEGURA PARA ENTERO
 int leerEnteroSeguro(const char *mensaje) {
     char buffer[50];
     int numero;
@@ -69,7 +68,7 @@ int leerEnteroSeguro(const char *mensaje) {
     }
 }
 
-// FUNCION DE LECTURA SEGURA PARA FLOTANTE
+
 float leerFlotanteSeguro(const char *mensaje) {
     char buffer[50];
     float numero;
@@ -84,14 +83,14 @@ float leerFlotanteSeguro(const char *mensaje) {
     }
 }
 
-// FUNCION DE LECTURA SEGURA PARA CADENA
+
 void leerCadenaSegura(const char *mensaje, char *cadena, int max_len) {
     while (1) {
         printf("%s", mensaje);
         fgets(cadena, max_len, stdin);
-        cadena[strcspn(cadena, "\n")] = 0; // quitar salto de línea
+        cadena[strcspn(cadena, "\n")] = 0; 
 
-        // validar que no esté vacía
+
         if (strlen(cadena) == 0) {
             printf("Error: El campo no puede estar vacío.\n");
         } else {
@@ -172,19 +171,20 @@ void pantalla_bienvenida() {
 
 
     printf("Presione ENTER para continuar...");
-    getchar();  // espera a que el usuario pulse ENTER
+    getchar();  
     limpiarPantalla();
 }
 
 // --- CRUD COMUNIDAD ---
 
 void insertar_comunidad() {
+    int id_ca = leerEnteroSeguro("ID de la comunidad: ");  // PEDIR id_ca
     char nombre[MAX_STRING_LEN];
     leerCadenaSegura("Nombre de la comunidad: ", nombre, MAX_STRING_LEN);
 
     char query[MAX_QUERY_LEN];
     snprintf(query, sizeof(query),
-        "INSERT INTO comunidad (canombre) VALUES('%s')", nombre);
+        "INSERT INTO comunidad (id_ca, canombre) VALUES(%d, '%s')", id_ca, nombre);
 
     if (mysql_query(con, query)) {
         finish_with_error();
@@ -192,6 +192,7 @@ void insertar_comunidad() {
         printf("  Comunidad registrada correctamente.\n");
     }
 }
+
 
 void leer_comunidades() {
     if (mysql_query(con, "SELECT id_ca, canombre FROM comunidad")) {
@@ -304,16 +305,18 @@ void menu_comunidad() {
 // --- CRUD PARQUE ---
 
 void insertar_parque() {
+    int id_parque;  // PEDIMOS ID PARQUE
     char nombre[MAX_STRING_LEN], fecha[20];
     float superficie;
     int id_ca;
 
+    id_parque = leerEnteroSeguro("ID del parque: ");  // NUEVO paso: pedir id_parque
     leerCadenaSegura("Nombre del parque: ", nombre, MAX_STRING_LEN);
     leerCadenaSegura("Fecha de declaracion (YYYY-MM-DD): ", fecha, 20);
     superficie = leerFlotanteSeguro("Superficie (ha): ");
     id_ca = leerEnteroSeguro("ID de la comunidad autonoma a la que pertenece: ");
 
-    // Verificar si la comunidad existe antes de insertar
+    // Verificar que exista la comunidad
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_ca FROM comunidad WHERE id_ca=%d", id_ca);
@@ -332,12 +335,12 @@ void insertar_parque() {
     }
     mysql_free_result(result);
 
-    // Insertar parque
+    // INSERT con id_parque incluido
     char query_insert[MAX_QUERY_LEN];
     snprintf(query_insert, sizeof(query_insert),
-        "INSERT INTO parque (pnombre, fec_declaracion, superficie, id_ca) "
-        "VALUES('%s', '%s', %.2f, %d)",
-        nombre, fecha, superficie, id_ca);
+        "INSERT INTO parque (id_parque, pnombre, fec_declaracion, superficie, id_ca) "
+        "VALUES(%d, '%s', '%s', %.2f, %d)",
+        id_parque, nombre, fecha, superficie, id_ca);
 
     if (mysql_query(con, query_insert)) {
         finish_with_error();
@@ -345,6 +348,7 @@ void insertar_parque() {
         printf("  Parque registrado correctamente.\n");
     }
 }
+
 
 void leer_parques() {
     if (mysql_query(con, "SELECT id_parque, pnombre, fec_declaracion, superficie, id_ca FROM parque")) {
@@ -375,7 +379,6 @@ void leer_parques() {
 void modificar_parque() {
     int id_parque = leerEnteroSeguro("ID del parque a modificar: ");
 
-    // Verificar si existe
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_parque FROM parque WHERE id_parque=%d", id_parque);
@@ -394,7 +397,7 @@ void modificar_parque() {
     }
     mysql_free_result(result);
 
-    // Leer nuevos datos
+
     char nombre[MAX_STRING_LEN], fecha[20];
     float superficie;
     int id_ca;
@@ -404,7 +407,6 @@ void modificar_parque() {
     superficie = leerFlotanteSeguro("Nueva superficie (ha): ");
     id_ca = leerEnteroSeguro("Nuevo ID de la comunidad autonoma: ");
 
-    // Verificar si la comunidad existe
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_ca FROM comunidad WHERE id_ca=%d", id_ca);
 
@@ -422,7 +424,6 @@ void modificar_parque() {
     }
     mysql_free_result(result);
 
-    // Actualizar parque
     char query_update[MAX_QUERY_LEN];
     snprintf(query_update, sizeof(query_update),
         "UPDATE parque SET pnombre='%s', fec_declaracion='%s', superficie=%.2f, id_ca=%d WHERE id_parque=%d",
@@ -438,7 +439,6 @@ void modificar_parque() {
 void eliminar_parque() {
     int id_parque = leerEnteroSeguro("ID del parque a eliminar: ");
 
-    // Verificar si existe
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_parque FROM parque WHERE id_parque=%d", id_parque);
@@ -457,7 +457,7 @@ void eliminar_parque() {
     }
     mysql_free_result(result);
 
-    // Eliminar
+
     char query_delete[MAX_QUERY_LEN];
     snprintf(query_delete, sizeof(query_delete),
         "DELETE FROM parque WHERE id_parque=%d", id_parque);
@@ -515,15 +515,17 @@ void menu_parque() {
 // --- CRUD AREA ---
 
 void insertar_area() {
+    int id_area;  // NUEVO: pedir id_area
     char nombre[MAX_STRING_LEN];
     float extension;
     int id_parque;
 
+    id_area = leerEnteroSeguro("ID del area: ");  // Pedir id_area
     leerCadenaSegura("Nombre del area: ", nombre, MAX_STRING_LEN);
     extension = leerFlotanteSeguro("Extension del area (ha): ");
     id_parque = leerEnteroSeguro("ID del parque al que pertenece: ");
 
-    // Verificar si el parque existe
+    // Verificar que exista el parque
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_parque FROM parque WHERE id_parque=%d", id_parque);
@@ -542,11 +544,11 @@ void insertar_area() {
     }
     mysql_free_result(result);
 
-    // Insertar area
+    // INSERT con id_area incluido
     char query_insert[MAX_QUERY_LEN];
     snprintf(query_insert, sizeof(query_insert),
-        "INSERT INTO area (anombre, extension, id_parque) "
-        "VALUES('%s', %.2f, %d)", nombre, extension, id_parque);
+        "INSERT INTO area (id_area, anombre, extension, id_parque) "
+        "VALUES(%d, '%s', %.2f, %d)", id_area, nombre, extension, id_parque);
 
     if (mysql_query(con, query_insert)) {
         finish_with_error();
@@ -554,6 +556,7 @@ void insertar_area() {
         printf("  Area registrada correctamente.\n");
     }
 }
+
 
 void leer_areas() {
     if (mysql_query(con, "SELECT id_area, anombre, extension, id_parque FROM area")) {
@@ -584,7 +587,6 @@ void leer_areas() {
 void modificar_area() {
     int id_area = leerEnteroSeguro("ID del area a modificar: ");
 
-    // Verificar si existe
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_area FROM area WHERE id_area=%d", id_area);
@@ -603,7 +605,7 @@ void modificar_area() {
     }
     mysql_free_result(result);
 
-    // Leer nuevos datos
+
     char nombre[MAX_STRING_LEN];
     float extension;
     int id_parque;
@@ -612,7 +614,6 @@ void modificar_area() {
     extension = leerFlotanteSeguro("Nueva extension del area (ha): ");
     id_parque = leerEnteroSeguro("Nuevo ID del parque: ");
 
-    // Verificar si parque existe
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_parque FROM parque WHERE id_parque=%d", id_parque);
 
@@ -630,7 +631,6 @@ void modificar_area() {
     }
     mysql_free_result(result);
 
-    // Actualizar area
     char query_update[MAX_QUERY_LEN];
     snprintf(query_update, sizeof(query_update),
         "UPDATE area SET anombre='%s', extension=%.2f, id_parque=%d WHERE id_area=%d",
@@ -646,7 +646,6 @@ void modificar_area() {
 void eliminar_area() {
     int id_area = leerEnteroSeguro("ID del area a eliminar: ");
 
-    // Verificar si existe
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_area FROM area WHERE id_area=%d", id_area);
@@ -665,7 +664,7 @@ void eliminar_area() {
     }
     mysql_free_result(result);
 
-    // Eliminar
+
     char query_delete[MAX_QUERY_LEN];
     snprintf(query_delete, sizeof(query_delete),
         "DELETE FROM area WHERE id_area=%d", id_area);
@@ -735,7 +734,7 @@ void insertar_personal() {
     leerCadenaSegura("Telefono domicilio: ", domicilio, MAX_STRING_LEN);
     id_parque = leerEnteroSeguro("ID del parque al que pertenece: ");
 
-    // Verificar si el parque existe
+
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_parque FROM parque WHERE id_parque=%d", id_parque);
@@ -754,7 +753,6 @@ void insertar_personal() {
     }
     mysql_free_result(result);
 
-    // Insertar personal
     char query_insert[MAX_QUERY_LEN];
     snprintf(query_insert, sizeof(query_insert),
         "INSERT INTO personal (p_dni, p_nombre, s_social, sueldo, tel_movil, tel_domicilio, id_parque) "
@@ -799,7 +797,6 @@ void modificar_personal() {
     char dni[20];
     leerCadenaSegura("DNI del personal a modificar: ", dni, 20);
 
-    // Verificar si existe
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT p_dni FROM personal WHERE p_dni='%s'", dni);
@@ -818,7 +815,6 @@ void modificar_personal() {
     }
     mysql_free_result(result);
 
-    // Leer nuevos datos
     char nombre[MAX_STRING_LEN], social[20], movil[20], domicilio[MAX_STRING_LEN];
     float sueldo;
     int id_parque;
@@ -830,7 +826,7 @@ void modificar_personal() {
     leerCadenaSegura("Nuevo telefono domicilio: ", domicilio, MAX_STRING_LEN);
     id_parque = leerEnteroSeguro("Nuevo ID del parque: ");
 
-    // Verificar si parque existe
+
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_parque FROM parque WHERE id_parque=%d", id_parque);
 
@@ -848,7 +844,6 @@ void modificar_personal() {
     }
     mysql_free_result(result);
 
-    // Actualizar personal
     char query_update[MAX_QUERY_LEN];
     snprintf(query_update, sizeof(query_update),
         "UPDATE personal SET p_nombre='%s', s_social='%s', sueldo=%.2f, tel_movil='%s', tel_domicilio='%s', id_parque=%d WHERE p_dni='%s'",
@@ -865,7 +860,7 @@ void eliminar_personal() {
     char dni[20];
     leerCadenaSegura("DNI del personal a eliminar: ", dni, 20);
 
-    // Verificar si existe
+
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT p_dni FROM personal WHERE p_dni='%s'", dni);
@@ -884,7 +879,6 @@ void eliminar_personal() {
     }
     mysql_free_result(result);
 
-    // Eliminar
     char query_delete[MAX_QUERY_LEN];
     snprintf(query_delete, sizeof(query_delete),
         "DELETE FROM personal WHERE p_dni='%s'", dni);
@@ -949,7 +943,6 @@ void insertar_p_gestion() {
     num_entrada = leerEnteroSeguro("Numero de entradas: ");
     leerCadenaSegura("DNI del personal: ", dni, 20);
 
-    // Verificar si personal existe
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT p_dni FROM personal WHERE p_dni='%s'", dni);
@@ -968,7 +961,7 @@ void insertar_p_gestion() {
     }
     mysql_free_result(result);
 
-    // Insertar
+
     char query_insert[MAX_QUERY_LEN];
     snprintf(query_insert, sizeof(query_insert),
         "INSERT INTO p_gestion (id_pg, num_entrada, p_dni) VALUES (%d, %d, '%s')",
@@ -1010,7 +1003,7 @@ void leer_p_gestion() {
 void eliminar_p_gestion() {
     int id_pg = leerEnteroSeguro("ID de p_gestion a eliminar: ");
 
-    // Verificar si existe
+
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_pg FROM p_gestion WHERE id_pg=%d", id_pg);
@@ -1029,7 +1022,7 @@ void eliminar_p_gestion() {
     }
     mysql_free_result(result);
 
-    // Eliminar
+
     char query_delete[MAX_QUERY_LEN];
     snprintf(query_delete, sizeof(query_delete),
         "DELETE FROM p_gestion WHERE id_pg=%d", id_pg);
@@ -1090,7 +1083,7 @@ void insertar_p_investigador() {
     leerCadenaSegura("Titulacion: ", titulacion, MAX_STRING_LEN);
     leerCadenaSegura("DNI del personal: ", dni, 20);
 
-    // Verificar si personal existe
+
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT p_dni FROM personal WHERE p_dni='%s'", dni);
@@ -1109,7 +1102,7 @@ void insertar_p_investigador() {
     }
     mysql_free_result(result);
 
-    // Insertar
+
     char query_insert[MAX_QUERY_LEN];
     snprintf(query_insert, sizeof(query_insert),
         "INSERT INTO p_investigador (id_pi, titulacion, p_dni) VALUES (%d, '%s', '%s')",
@@ -1151,7 +1144,7 @@ void leer_p_investigador() {
 void eliminar_p_investigador() {
     int id_pi = leerEnteroSeguro("ID de p_investigador a eliminar: ");
 
-    // Verificar si existe
+
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_pi FROM p_investigador WHERE id_pi=%d", id_pi);
@@ -1170,7 +1163,7 @@ void eliminar_p_investigador() {
     }
     mysql_free_result(result);
 
-    // Eliminar
+
     char query_delete[MAX_QUERY_LEN];
     snprintf(query_delete, sizeof(query_delete),
         "DELETE FROM p_investigador WHERE id_pi=%d", id_pi);
@@ -1230,7 +1223,6 @@ void insertar_p_conservacion() {
     leerCadenaSegura("Especialidad: ", espec, MAX_STRING_LEN);
     leerCadenaSegura("DNI del personal: ", dni, 20);
 
-    // Verificar si personal existe
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT p_dni FROM personal WHERE p_dni='%s'", dni);
@@ -1249,7 +1241,6 @@ void insertar_p_conservacion() {
     }
     mysql_free_result(result);
 
-    // Insertar
     char query_insert[MAX_QUERY_LEN];
     snprintf(query_insert, sizeof(query_insert),
         "INSERT INTO p_conservacion (id_pc, espec, p_dni) VALUES (%d, '%s', '%s')",
@@ -1291,7 +1282,6 @@ void leer_p_conservacion() {
 void eliminar_p_conservacion() {
     int id_pc = leerEnteroSeguro("ID de p_conservacion a eliminar: ");
 
-    // Verificar si existe
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_pc FROM p_conservacion WHERE id_pc=%d", id_pc);
@@ -1310,7 +1300,6 @@ void eliminar_p_conservacion() {
     }
     mysql_free_result(result);
 
-    // Eliminar
     char query_delete[MAX_QUERY_LEN];
     snprintf(query_delete, sizeof(query_delete),
         "DELETE FROM p_conservacion WHERE id_pc=%d", id_pc);
@@ -1371,7 +1360,6 @@ void insertar_p_vigilancia() {
     leerCadenaSegura("Matricula: ", matricula, 50);
     leerCadenaSegura("DNI del personal: ", dni, 20);
 
-    // Verificar si personal existe
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT p_dni FROM personal WHERE p_dni='%s'", dni);
@@ -1390,7 +1378,6 @@ void insertar_p_vigilancia() {
     }
     mysql_free_result(result);
 
-    // Insertar
     char query_insert[MAX_QUERY_LEN];
     snprintf(query_insert, sizeof(query_insert),
         "INSERT INTO p_vigilancia (id_pv, pv_tipo, matricula, p_dni) "
@@ -1433,7 +1420,6 @@ void leer_p_vigilancia() {
 void eliminar_p_vigilancia() {
     int id_pv = leerEnteroSeguro("ID de p_vigilancia a eliminar: ");
 
-    // Verificar si existe
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_pv FROM p_vigilancia WHERE id_pv=%d", id_pv);
@@ -1452,7 +1438,6 @@ void eliminar_p_vigilancia() {
     }
     mysql_free_result(result);
 
-    // Eliminar
     char query_delete[MAX_QUERY_LEN];
     snprintf(query_delete, sizeof(query_delete),
         "DELETE FROM p_vigilancia WHERE id_pv=%d", id_pv);
@@ -1511,7 +1496,6 @@ void insertar_contrata() {
     id_parque = leerEnteroSeguro("ID del parque: ");
     leerCadenaSegura("DNI del personal: ", dni, 20);
 
-    // Verificar parque
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_parque FROM parque WHERE id_parque=%d", id_parque);
@@ -1530,7 +1514,6 @@ void insertar_contrata() {
     }
     mysql_free_result(result);
 
-    // Verificar personal
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT p_dni FROM personal WHERE p_dni='%s'", dni);
 
@@ -1548,7 +1531,7 @@ void insertar_contrata() {
     }
     mysql_free_result(result);
 
-    // Insertar
+
     char query_insert[MAX_QUERY_LEN];
     snprintf(query_insert, sizeof(query_insert),
         "INSERT INTO contrata (id_parque, p_dni) VALUES (%d, '%s')",
@@ -1657,7 +1640,6 @@ void insertar_vigila() {
     id_area = leerEnteroSeguro("ID del area: ");
     leerCadenaSegura("DNI del personal: ", dni, 20);
 
-    // Verificar area
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_area FROM area WHERE id_area=%d", id_area);
@@ -1676,7 +1658,6 @@ void insertar_vigila() {
     }
     mysql_free_result(result);
 
-    // Verificar personal
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT p_dni FROM personal WHERE p_dni='%s'", dni);
 
@@ -1694,7 +1675,7 @@ void insertar_vigila() {
     }
     mysql_free_result(result);
 
-    // Insertar
+
     char query_insert[MAX_QUERY_LEN];
     snprintf(query_insert, sizeof(query_insert),
         "INSERT INTO vigila (id_area, p_dni) VALUES (%d, '%s')",
@@ -1803,7 +1784,7 @@ void insertar_mantiene() {
     id_area = leerEnteroSeguro("ID del area: ");
     leerCadenaSegura("DNI del personal: ", dni, 20);
 
-    // Verificar area
+
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_area FROM area WHERE id_area=%d", id_area);
@@ -1822,7 +1803,6 @@ void insertar_mantiene() {
     }
     mysql_free_result(result);
 
-    // Verificar personal
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT p_dni FROM personal WHERE p_dni='%s'", dni);
 
@@ -1840,7 +1820,7 @@ void insertar_mantiene() {
     }
     mysql_free_result(result);
 
-    // Insertar
+
     char query_insert[MAX_QUERY_LEN];
     snprintf(query_insert, sizeof(query_insert),
         "INSERT INTO mantiene (id_area, p_dni) VALUES (%d, '%s')",
@@ -1948,7 +1928,7 @@ void insertar_realizan() {
     id_pi = leerEnteroSeguro("ID de p_investigador: ");
     id_investigacion = leerEnteroSeguro("ID de proyecto de investigacion: ");
 
-    // Verificar p_investigador
+
     char query_verifica[MAX_QUERY_LEN];
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_pi FROM p_investigador WHERE id_pi=%d", id_pi);
@@ -1967,7 +1947,7 @@ void insertar_realizan() {
     }
     mysql_free_result(result);
 
-    // Verificar proyecto_investigacion
+
     snprintf(query_verifica, sizeof(query_verifica),
         "SELECT id_investigacion FROM proyecto_investigacion WHERE id_investigacion=%d", id_investigacion);
 
@@ -1985,7 +1965,7 @@ void insertar_realizan() {
     }
     mysql_free_result(result);
 
-    // Insertar
+
     char query_insert[MAX_QUERY_LEN];
     snprintf(query_insert, sizeof(query_insert),
         "INSERT INTO realizan (id_pi, id_investigacion) VALUES (%d, %d)",
