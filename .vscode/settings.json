@@ -9,6 +9,7 @@
         "initializer_list": "c",
         "span": "c",
         "random": "c",
-        "math.h": "c"
+        "math.h": "c",
+        "stdlib.h": "c"
     }
 }
